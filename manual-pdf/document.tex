@@ -1,0 +1,138 @@
+\documentclass{article}
+\usepackage{ctex}
+\usepackage{listings}
+\usepackage{fancyvrb}
+\usepackage{calc}
+\usepackage{geometry}
+\usepackage{multirow}
+\lstset{breaklines=true}
+\geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+\begin{document}
+	\title{TCP Probe 说明}
+	\date{}
+	\maketitle
+	\section{输出格式}
+	\par 输出文件: \texttt{/proc/net/tcpprobe\_data}
+	\par 输出的每一行的字段从左到右分别为 (所有字段均采用十六进制输出):
+	\begin{Verbatim}[frame=single]
+<type>, <timestamp sec>, <timestamp nsec>, <srcaddr> <srcport>, <dstaddr> <dstport>,
+<length>, <tcp_flags>, <seq_num>, <ack_num>, <ca_state>, <snd_nxt>, <snd_una>,
+<write_seq>, <wqueue>, <snd_cwnd>, <ssthreshold>, <snd_wnd>, <srtt>, <mdev>,
+<rttvar>, <rto>, <packets_out>, <lost_out>, <sacked_out>, <retrans_out>, <retrans>,
+<frto_counter>, <rto_num>, <user-agent>
+	\end{Verbatim}
+	\par 各个字段的含义如\tablename{\ref{tab: field-description}} 所示。
+	\section{内核模块参数}
+	内核模块中主要的内核参数如下表所示。
+	\par 内核模块参数配置方法:
+	\begin{enumerate}
+		\item 加载内核时配置：\texttt{insmod tcp\_probe\_plus.ko <arg 1>=<value 1> <arg 2>=<value 2> ...}
+		\item 通过 sysctl 接口配置：\texttt{sysctl -w net.tcpprobe\_plus.<arg>=<value>}
+	\end{enumerate}
+	\begin{table}[!ht]
+		\centering
+		\begin{tabular}{|l|l|} \hline
+			{\bf 参数}		& {\bf 含义} \\ \hline
+			\texttt{port}		& \parbox{0.6\linewidth}{								
+										要监听连接的 TCP 端口号（源或目的， 默认值：0） \\
+										0 表示监听所有端口
+									} \\ \hline
+			\texttt{full}		& 0：只有当拥塞窗口变化时才记录，1：任何一个包到达时都记录 (默认值: 1) \\ \hline
+			\texttt{maxflows}	& 最多同时监听的流数目 (默认值: 1000) \\ \hline
+			\texttt{readnum}	& 从 proc 文件系统中一次性读取的数据量 (单位：item, 默认值：10) \\ \hline
+			\texttt{bufsize}	& 内核模块中 Log 的缓存大小 (单位：item, 默认值：4096) \\ \hline
+		\end{tabular}
+	\end{table}
+	\begin{table}[!ht]
+		\centering
+		\caption{输出格式中各字段的含义} \label{tab: field-description}
+		\begin{tabular}{|c|l|} \hline
+			{\bf 字段}	& {\centering \bf 含义} \\ \hline
+			\texttt{type}	& \parbox{0.6\linewidth}{
+				~\\
+				何时获得这一列数据：\\
+				0: 收到数据 \\
+				1: 发送数据 \\
+				2: RTO 超时 \\
+				3: 连接建立 \\
+				4: 连接关闭 \\
+				5: 连接移除
+			} \\ \hline
+			\texttt{timestamp sec} 	& 时间戳, 秒部分 \\ \hline
+			\texttt{timestamp nsec}	& 时间戳，纳秒部分 \\ \hline
+			\texttt{srcaddr}	& 源 IP 地址 \\ \hline
+			\texttt{srcport}	& 源 TCP 端口号 \\ \hline
+			\texttt{dstaddr}	& 目的 IP 地址 \\ \hline
+			\texttt{dstport}	& 目的 TCP 端口号  \\ \hline
+			\texttt{length}		& 捕获的包 payload 大小 (单位: Byte) \\ \hline
+			\texttt{tcp\_flags} & TCP 包头中的标志位 \\ \hline
+			\texttt{seq\_num}	& 捕获的包的 tcp 序列号 (相对值) \\ \hline
+			\texttt{ack\_num}	& 捕获的包的 tcp 确认号 (相对值) \\ \hline
+			\texttt{ca\_state}	& 拥塞避免状态 \\ \hline
+			\texttt{snd\_nxt}	& 下一个待发数据包的序列号 (相对值) \\ \hline
+			\texttt{snd\_una}	& 第一个尚未被确认的包的序列号 (相对值) \\ \hline
+			\texttt{write\_seq}	& 发送缓存中的最后一段数据的位置 (相对值) \\ \hline
+			\texttt{wqueue}		& 发送缓存中数据量 (单位，Byte) \\ \hline
+			\texttt{snd\_cwnd}	& 拥塞窗口大小 (单位：包) \\ \hline
+			\texttt{ssthreshold} & 慢启动阈值 (单位：包) \\ \hline
+			\texttt{snd\_wnd}	& 接受窗口大小 (单位：包) \\ \hline
+			\texttt{srtt}		& 内核估计的 rtt (单位: 8$\mu$s) \\ \hline
+			\texttt{mdev}		& RTT 中等偏差 (单位：4$\mu$s) \\ \hline
+			\texttt{rttvar}		& RTT 标准差 (单位：4$\mu$s) \\ \hline
+			\texttt{rto}		& 重传定时器的值 (单位：ms) \\ \hline
+			\texttt{packets\_out} & 发送出去的数据量 (单位：包) \\ \hline
+			\texttt{lost\_out}	& 内核所估计的(已发送的包中)的丢包数 \\ \hline
+			\texttt{sacked\_out} & 被 SACK 的包数 \\ \hline
+			\texttt{retrans\_out} & 当前所重传的包数 \\ \hline
+			\texttt{retrans}	& 总共的重传次数 \\ \hline
+			\texttt{frto\_counter} & 是否发生虚假超时重传 \\ \hline
+			\texttt{rto\_num}	& 发生超时重传事件的次数 \\ \hline
+			\texttt{user-agent}	& HTTP 包头中的 User-Agent 字段 （可能为空） \\ \hline
+		\end{tabular}
+	\end{table}
+	\section{统计信息}
+	\par 内核模块维护一些实时的统计信息，这些统计信息可以在文件 \texttt{/proc/net/stat/tcpprobe\_plus} 中看到:
+	\begin{verbatim}
+		centos@host:~$ cat /proc/net/stat/tcpprobe_plus
+		Flows: active 4 mem 0K
+		Hash: size 1000 mem 36K
+		cpu# hash_stat: <search_flows found new reset>, ack_drop: <purge_in_progress ring_full>, \ 
+		conn_drop: <maxflow_reached memory_alloc_failed>, err: <multiple_reader copy_failed>
+		Total: hash_stat: 0  25877    151    147, ack_drop: 0 0, conn_drop: 0 0, err: 0 0
+	\end{verbatim}
+	\par 各个统计值的含义如下所示：
+	\begin{itemize}
+		\item Flows
+		\begin{itemize}
+			\item active: 正在监听的连接数
+			\item mem: Flow table 所占用的内存大小
+		\end{itemize}
+		\item Hash
+		\begin{itemize}
+			\item size: 哈希表中表项的个数
+			\item mem: 哈希表所占用的内存大小
+		\end{itemize}
+		\item hash\_stat
+		\begin{itemize}
+			\item search\_flows: 哈希表中被找到的流数
+			\item found: 哈希表中的流数
+			\item new: 新增加的流表数
+			\item reset: 因连接关闭而结束的流数
+		\end{itemize}
+		\item ack\_drop
+		\begin{itemize}
+			\item purge\_in\_progress: 已经弃用，一般为 0
+			\item ring\_full: 因为读取 \texttt{/proc/net/tcpprobe\_data} 不及时造成数据丢失的数目
+		\end{itemize}
+		\item conn\_drop
+		\begin{itemize}
+			\item maxlfow\_reached: 因达到流数过多而不监听的连接的数目
+			\item memory\_alloc\_failed: 因分配内存失败而不监听的连接数目
+		\end{itemize}
+		\item err
+		\begin{itemize}
+			\item multiple\_reader: 在写入 \texttt{/proc/net/tcpprobe\_data} 时，文件正在被多个 reader 读取
+			\item copy\_failed: 无法拷贝数据到用户态
+		\end{itemize}
+	\end{itemize}
+\end{document}

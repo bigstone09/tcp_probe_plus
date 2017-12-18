@@ -1,0 +1,2 @@
+# <srcip> <srcport> <dstip> <dstport> <from_line> <to_line> <retrans #> <timeout #> <send size (B)> <duration (s)> <Speed (Bps)>
+3232236004 44242 3232235777 5001 12.115 13.010 0 4175 13 0 10483520 0.895552 11706210

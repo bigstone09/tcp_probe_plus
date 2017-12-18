@@ -1,0 +1,5 @@
+dpkt>=1.9.0
+matplotlib>=1.5.0
+numpy>=1.12.1
+progressbar2>=3.33.2
+XlsxWriter>=1.0.2

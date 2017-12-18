@@ -1,0 +1,8 @@
+Flows: active 2 mem 0K
+Hash: size 16384 mem 128K
+cpu# hash_stat: <search_flows found new reset>, ack_drop: <purge_in_progress ring_full>, conn_drop: <maxflow_reached memory_alloc_failed>, err: <multiple_reader copy_failed>
+Total: hash_stat:      0  24044      2      0, ack_drop:      0      0, conn_drop:      0      0, err:      0      0
+cpu0: hash_stat:      0  20427      2      0, ack_drop:      0      0, conn_drop:      0      0, err:      0      0
+cpu1: hash_stat:      0   1384      2      0, ack_drop:      0      0, conn_drop:      0      0, err:      0      0
+cpu2: hash_stat:      0   1855      2      0, ack_drop:      0      0, conn_drop:      0      0, err:      0      0
+cpu3: hash_stat:      0    378      2      0, ack_drop:      0      0, conn_drop:      0      0, err:      0      0
